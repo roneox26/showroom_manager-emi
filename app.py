@@ -54,13 +54,11 @@ def create_app(config_name='default'):
     return app
 
 
+# Create app instance for production/WSGI capability
+env = os.environ.get('FLASK_ENV', 'default')
+app = create_app(env)
+
 if __name__ == '__main__':
-    # Get environment from environment variable
-    env = os.environ.get('FLASK_ENV', 'development')
-    
-    # Create app
-    app = create_app(env)
-    
     # Run app
     print("=" * 50)
     print("🏪 Showroom Manager Application")
