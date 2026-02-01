@@ -1,0 +1,176 @@
+{% extends "base.html" %}
+
+{% block title %}EMI ড্যাশবোর্ড - Showroom Manager{% endblock %}
+
+{% block content %}
+<div class="row mb-3">
+    <div class="col-12">
+        <h2><i class="bi bi-calendar-check"></i> EMI ড্যাশবোর্ড</h2>
+    </div>
+</div>
+
+<!-- Statistics Cards -->
+<div class="row mb-4">
+    <div class="col-md-3 mb-3">
+        <div class="card text-white bg-primary">
+            <div class="card-body">
+                <h6 class="card-title">সক্রিয় EMI</h6>
+                <h2 class="mb-0">{{ total_active }}</h2>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3 mb-3">
+        <div class="card text-white bg-danger">
+            <div class="card-body">
+                <h6 class="card-title">বকেয়া</h6>
+                <h2 class="mb-0">{{ total_overdue }}</h2>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3 mb-3">
+        <div class="card text-white bg-success">
+            <div class="card-body">
+                <h6 class="card-title">সম্পন্ন</h6>
+                <h2 class="mb-0">{{ total_completed }}</h2>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3 mb-3">
+        <div class="card text-white bg-warning">
+            <div class="card-body">
+                <h6 class="card-title">মোট প্রাপ্য</h6>
+                <h2 class="mb-0">৳{{ "%.2f"|format(total_receivable) }}</h2>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Search and Filter -->
+<div class="row mb-3">
+    <div class="col-md-6">
+        <form method="GET" action="{{ url_for('emi.dashboard') }}" class="input-group">
+            <input type="text" name="search" class="form-control" placeholder="ক্রেতা খুঁজুন..."
+                value="{{ search_query or '' }}">
+            <button class="btn btn-outline-secondary" type="submit">
+                <i class="bi bi-search"></i> খুঁজুন
+            </button>
+        </form>
+    </div>
+    <div class="col-md-6">
+        <div class="btn-group w-100" role="group">
+            <a href="{{ url_for('emi.dashboard', status='Active') }}"
+                class="btn btn-outline-primary {% if status_filter == 'Active' %}active{% endif %}">
+                সক্রিয়
+            </a>
+            <a href="{{ url_for('emi.dashboard', status='Completed') }}"
+                class="btn btn-outline-success {% if status_filter == 'Completed' %}active{% endif %}">
+                সম্পন্ন
+            </a>
+            <a href="{{ url_for('emi.dashboard', status='Defaulted') }}"
+                class="btn btn-outline-danger {% if status_filter == 'Defaulted' %}active{% endif %}">
+                ডিফল্টেড
+            </a>
+            <a href="{{ url_for('emi.dashboard', status='All') }}"
+                class="btn btn-outline-secondary {% if status_filter == 'All' %}active{% endif %}">
+                সকল
+            </a>
+        </div>
+    </div>
+</div>
+
+<!-- Overdue Alert -->
+{% if overdue_emis %}
+<div class="alert alert-danger">
+    <i class="bi bi-exclamation-triangle-fill"></i>
+    <strong>সতর্কতা!</strong> {{ overdue_emis|length }} টি EMI বকেয়া আছে!
+</div>
+{% endif %}
+
+<!-- EMI List -->
+<div class="card">
+    <div class="card-header">
+        <h5 class="mb-0">EMI তালিকা</h5>
+    </div>
+    <div class="card-body">
+        {% if emi_ledgers %}
+        <div class="table-responsive">
+            <table class="table table-hover">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>ক্রেতা</th>
+                        <th>ফোন</th>
+                        <th>পণ্য</th>
+                        <th>মাসিক কিস্তি</th>
+                        <th>পরিশোধিত/মোট</th>
+                        <th>অবশিষ্ট</th>
+                        <th>পরবর্তী তারিখ</th>
+                        <th>স্ট্যাটাস</th>
+                        <th>অ্যাকশন</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for emi in emi_ledgers %}
+                    <tr class="{% if emi.is_overdue() %}table-danger{% endif %}">
+                        <td>{{ emi.id }}</td>
+                        <td>{{ emi.sale.customer.name }}</td>
+                        <td>{{ emi.sale.customer.phone }}</td>
+                        <td>{{ emi.sale.product.name }}</td>
+                        <td>৳{{ emi.monthly_amount }}</td>
+                        <td>
+                            <span class="badge bg-info">
+                                {{ emi.installments_paid }}/{{ emi.total_installments }}
+                            </span>
+                        </td>
+                        <td>৳{{ "%.2f"|format(emi.calculate_remaining_amount()) }}</td>
+                        <td>
+                            {{ emi.next_payment_date.strftime('%d-%m-%Y') }}
+                            {% if emi.is_overdue() %}
+                            <br><small class="text-danger">({{ emi.get_days_overdue() }} দিন বকেয়া)</small>
+                            {% endif %}
+                        </td>
+                        <td>
+                            {% if emi.status == 'Active' %}
+                            <span class="badge bg-primary">সক্রিয়</span>
+                            {% elif emi.status == 'Completed' %}
+                            <span class="badge bg-success">সম্পন্ন</span>
+                            {% elif emi.status == 'Defaulted' %}
+                            <span class="badge bg-danger">ডিফল্টেড</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            {% if emi.status == 'Active' %}
+                            <form method="POST" action="{{ url_for('emi.pay_installment', emi_id=emi.id) }}"
+                                style="display:inline;">
+                                <button type="submit" class="btn btn-sm btn-success"
+                                    onclick="return confirm('কিস্তি পরিশোধ নিশ্চিত করুন?');">
+                                    <i class="bi bi-cash"></i> পরিশোধ
+                                </button>
+                            </form>
+                            <form method="POST" action="{{ url_for('emi.mark_defaulted', emi_id=emi.id) }}"
+                                style="display:inline;">
+                                <button type="submit" class="btn btn-sm btn-danger"
+                                    onclick="return confirm('ডিফল্টেড হিসেবে চিহ্নিত করবেন?');">
+                                    <i class="bi bi-x-circle"></i>
+                                </button>
+                            </form>
+                            {% endif %}
+                            <a href="{{ url_for('emi.customer_emi_history', customer_id=emi.sale.customer.id) }}"
+                                class="btn btn-sm btn-info">
+                                <i class="bi bi-eye"></i>
+                            </a>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% else %}
+        <div class="text-center py-5">
+            <i class="bi bi-inbox display-1 text-muted"></i>
+            <p class="mt-3">কোনো EMI পাওয়া যায়নি</p>
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

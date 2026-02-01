@@ -1,0 +1,347 @@
+{% extends "base.html" %}
+
+{% block title %}বিক্রয় - Showroom Manager{% endblock %}
+
+{% block content %}
+<div class="row mb-3">
+    <div class="col-12">
+        <h2><i class="bi bi-cart-check"></i> পণ্য বিক্রয় (POS)</h2>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-md-8">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0">বিক্রয় তথ্য</h5>
+            </div>
+            <div class="card-body">
+                <form id="saleForm">
+                    <!-- Product Selection -->
+                    <div class="mb-3">
+                        <label class="form-label">পণ্য নির্বাচন করুন *</label>
+                        <select name="product_id" id="product_id" class="form-select" required
+                            onchange="updateProductPrice()">
+                            <option value="">-- পণ্য নির্বাচন করুন --</option>
+                            {% for product in products %}
+                            <option value="{{ product.id }}" data-price="{{ product.selling_price }}"
+                                data-stock="{{ product.stock_quantity }}">
+                                {{ product.name }} - {{ product.model }} (স্টক: {{ product.stock_quantity }}) - ৳{{
+                                product.selling_price }}
+                            </option>
+                            {% endfor %}
+                        </select>
+                    </div>
+
+                    <!-- Customer Selection -->
+                    <div class="mb-3">
+                        <label class="form-label">ক্রেতা</label>
+                        <div class="input-group">
+                            <select name="customer_id" id="customer_id" class="form-select"
+                                onchange="toggleCustomerFields()">
+                                <option value="">-- নতুন ক্রেতা --</option>
+                                {% for customer in customers %}
+                                <option value="{{ customer.id }}" data-name="{{ customer.name }}"
+                                    data-phone="{{ customer.phone }}" data-address="{{ customer.address or '' }}"
+                                    data-nid="{{ customer.nid_number or '' }}">
+                                    {{ customer.name }} - {{ customer.phone }}
+                                </option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                    </div>
+
+                    <!-- New Customer Fields -->
+                    <div id="newCustomerFields">
+                        <div class="mb-3">
+                            <label class="form-label">ক্রেতার নাম *</label>
+                            <input type="text" name="customer_name" id="customer_name" class="form-control" required>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">ফোন নম্বর *</label>
+                            <input type="text" name="customer_phone" id="customer_phone" class="form-control"
+                                placeholder="01XXXXXXXXX" required>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">ঠিকানা</label>
+                            <textarea name="customer_address" id="customer_address" class="form-control"
+                                rows="2"></textarea>
+                        </div>
+                        <div class="mb-3" id="nidField" style="display:none;">
+                            <label class="form-label">NID নম্বর (EMI এর জন্য আবশ্যক)</label>
+                            <input type="text" name="customer_nid" id="customer_nid" class="form-control">
+                        </div>
+                    </div>
+
+                    <!-- Sale Type -->
+                    <div class="mb-3">
+                        <label class="form-label">বিক্রয়ের ধরন *</label>
+                        <div class="btn-group w-100" role="group">
+                            <input type="radio" class="btn-check" name="sale_type" id="cash_sale" value="cash" checked
+                                onchange="toggleEMIFields()">
+                            <label class="btn btn-outline-success" for="cash_sale">
+                                <i class="bi bi-cash-coin"></i> নগদ বিক্রয়
+                            </label>
+
+                            <input type="radio" class="btn-check" name="sale_type" id="emi_sale" value="emi"
+                                onchange="toggleEMIFields()">
+                            <label class="btn btn-outline-warning" for="emi_sale">
+                                <i class="bi bi-calendar-range"></i> EMI বিক্রয়
+                            </label>
+                        </div>
+                    </div>
+
+                    <!-- EMI Fields -->
+                    <div id="emiFields" style="display:none;">
+                        <div class="card bg-light mb-3">
+                            <div class="card-body">
+                                <h6 class="card-title">EMI বিবরণ</h6>
+
+                                <div class="mb-3">
+                                    <label class="form-label">ডাউন পেমেন্ট (৳)</label>
+                                    <input type="number" name="down_payment" id="down_payment" class="form-control"
+                                        step="0.01" value="0" min="0" oninput="calculateEMI()">
+                                </div>
+
+                                <div class="mb-3">
+                                    <label class="form-label">সুদের হার (%)</label>
+                                    <input type="number" name="interest_rate" id="interest_rate" class="form-control"
+                                        step="0.1" value="0" min="0" max="100" oninput="calculateEMI()"
+                                        placeholder="যেমন: 5 মানে ৫%">
+                                    <small class="text-muted">বার্ষিক সুদের হার শতাংশে লিখুন (0 মানে সুদ নেই)</small>
+                                </div>
+
+                                <div class="mb-3">
+                                    <label class="form-label">কিস্তির মেয়াদ (মাস)</label>
+                                    <select name="emi_period" id="emi_period" class="form-select"
+                                        onchange="calculateEMI()">
+                                        {% for period in emi_periods %}
+                                        <option value="{{ period }}">{{ period }} মাস</option>
+                                        {% endfor %}
+                                    </select>
+                                </div>
+
+                                <div class="alert alert-info mb-2">
+                                    <div class="row">
+                                        <div class="col-6">
+                                            <small>মূল টাকা:</small><br>
+                                            <strong id="principal_display">৳0.00</strong>
+                                        </div>
+                                        <div class="col-6">
+                                            <small>মোট সুদ:</small><br>
+                                            <strong id="interest_display">৳0.00</strong>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="alert alert-success">
+                                    <strong>মাসিক কিস্তি:</strong> <span id="monthly_amount" class="fs-5">৳0.00</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Submit Buttons -->
+                    <div class="d-grid gap-2">
+                        <button type="button" class="btn btn-success btn-lg" id="cashSaleBtn"
+                            onclick="submitCashSale()">
+                            <i class="bi bi-check-circle"></i> নগদ বিক্রয় সম্পন্ন করুন
+                        </button>
+                        <button type="button" class="btn btn-warning btn-lg" id="emiSaleBtn" style="display:none;"
+                            onclick="submitEMISale()">
+                            <i class="bi bi-check-circle"></i> EMI বিক্রয় সম্পন্ন করুন
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Summary Panel -->
+    <div class="col-md-4">
+        <div class="card sticky-top" style="top: 20px;">
+            <div class="card-header bg-primary text-white">
+                <h5 class="mb-0">বিক্রয় সারাংশ</h5>
+            </div>
+            <div class="card-body">
+                <div class="mb-3">
+                    <label class="text-muted">পণ্যের মূল্য</label>
+                    <h4 id="total_price">৳0.00</h4>
+                </div>
+
+                <div id="emiSummary" style="display:none;">
+                    <hr>
+                    <div class="mb-2">
+                        <small class="text-muted">ডাউন পেমেন্ট</small>
+                        <div id="summary_down_payment">৳0.00</div>
+                    </div>
+                    <div class="mb-2">
+                        <small class="text-muted">বাকি পরিমাণ</small>
+                        <div id="summary_remaining">৳0.00</div>
+                    </div>
+                    <div class="mb-2">
+                        <small class="text-muted">মেয়াদ</small>
+                        <div id="summary_period">0 মাস</div>
+                    </div>
+                    <div class="mb-2">
+                        <small class="text-muted">মাসিক কিস্তি</small>
+                        <div class="fw-bold text-warning" id="summary_monthly">৳0.00</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    let currentPrice = 0;
+
+    function updateProductPrice() {
+        const select = document.getElementById('product_id');
+        const option = select.options[select.selectedIndex];
+
+        if (option.value) {
+            currentPrice = parseFloat(option.dataset.price);
+            document.getElementById('total_price').textContent = '৳' + currentPrice.toFixed(2);
+            calculateEMI();
+        } else {
+            currentPrice = 0;
+            document.getElementById('total_price').textContent = '৳0.00';
+        }
+    }
+
+    function toggleCustomerFields() {
+        const select = document.getElementById('customer_id');
+        const newFields = document.getElementById('newCustomerFields');
+
+        if (select.value) {
+            // Existing customer selected
+            newFields.style.display = 'none';
+            document.getElementById('customer_name').required = false;
+            document.getElementById('customer_phone').required = false;
+        } else {
+            // New customer
+            newFields.style.display = 'block';
+            document.getElementById('customer_name').required = true;
+            document.getElementById('customer_phone').required = true;
+        }
+    }
+
+    function toggleEMIFields() {
+        const isCash = document.getElementById('cash_sale').checked;
+        const emiFields = document.getElementById('emiFields');
+        const emiSummary = document.getElementById('emiSummary');
+        const nidField = document.getElementById('nidField');
+        const cashBtn = document.getElementById('cashSaleBtn');
+        const emiBtn = document.getElementById('emiSaleBtn');
+
+        if (isCash) {
+            emiFields.style.display = 'none';
+            emiSummary.style.display = 'none';
+            nidField.style.display = 'none';
+            cashBtn.style.display = 'block';
+            emiBtn.style.display = 'none';
+        } else {
+            emiFields.style.display = 'block';
+            emiSummary.style.display = 'block';
+            nidField.style.display = 'block';
+            cashBtn.style.display = 'none';
+            emiBtn.style.display = 'block';
+            calculateEMI();
+        }
+    }
+
+    function calculateEMI() {
+        if (currentPrice === 0) return;
+
+        const downPayment = parseFloat(document.getElementById('down_payment').value) || 0;
+        const period = parseInt(document.getElementById('emi_period').value);
+        const interestRate = parseFloat(document.getElementById('interest_rate').value) || 0;
+
+        const principal = currentPrice - downPayment;
+
+        // Calculate interest (Flat Rate Method)
+        const totalInterest = (principal * interestRate * period) / (100 * 12);
+
+        // Total EMI amount
+        const totalEmiAmount = principal + totalInterest;
+
+        // Monthly installment
+        const monthly = totalEmiAmount / period;
+
+        // Update displays
+        document.getElementById('principal_display').textContent = '৳' + principal.toFixed(2);
+        document.getElementById('interest_display').textContent = '৳' + totalInterest.toFixed(2);
+        document.getElementById('monthly_amount').textContent = '৳' + monthly.toFixed(2);
+        document.getElementById('summary_down_payment').textContent = '৳' + downPayment.toFixed(2);
+        document.getElementById('summary_remaining').textContent = '৳' + principal.toFixed(2);
+        document.getElementById('summary_period').textContent = period + ' মাস';
+        document.getElementById('summary_monthly').textContent = '৳' + monthly.toFixed(2);
+    }
+
+    function submitCashSale() {
+        const form = document.getElementById('saleForm');
+        if (!form.checkValidity()) {
+            form.reportValidity();
+            return;
+        }
+
+        const formData = new FormData(form);
+        const submitForm = document.createElement('form');
+        submitForm.method = 'POST';
+        submitForm.action = '{{ url_for("pos.cash_sale") }}';
+
+        for (let [key, value] of formData.entries()) {
+            if (key !== 'sale_type' && key !== 'down_payment' && key !== 'emi_period') {
+                const input = document.createElement('input');
+                input.type = 'hidden';
+                input.name = key;
+                input.value = value;
+                submitForm.appendChild(input);
+            }
+        }
+
+        document.body.appendChild(submitForm);
+        submitForm.submit();
+    }
+
+    function submitEMISale() {
+        const form = document.getElementById('saleForm');
+        if (!form.checkValidity()) {
+            form.reportValidity();
+            return;
+        }
+
+        // Check NID for new customers
+        const customerId = document.getElementById('customer_id').value;
+        const nid = document.getElementById('customer_nid').value;
+        if (!customerId && !nid) {
+            alert('EMI বিক্রয়ের জন্য NID নম্বর আবশ্যক!');
+            return;
+        }
+
+        const formData = new FormData(form);
+        const submitForm = document.createElement('form');
+        submitForm.method = 'POST';
+        submitForm.action = '{{ url_for("pos.emi_sale") }}';
+
+        for (let [key, value] of formData.entries()) {
+            if (key !== 'sale_type') {
+                const input = document.createElement('input');
+                input.type = 'hidden';
+                input.name = key;
+                input.value = value;
+                submitForm.appendChild(input);
+            }
+        }
+
+        document.body.appendChild(submitForm);
+        submitForm.submit();
+    }
+
+    // Initialize
+    toggleCustomerFields();
+</script>
+{% endblock %}

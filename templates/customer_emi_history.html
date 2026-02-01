@@ -1,0 +1,110 @@
+{% extends "base.html" %}
+
+{% block title %}ক্রেতার EMI ইতিহাস{% endblock %}
+
+{% block content %}
+<div class="row mb-3">
+    <div class="col-12">
+        <h2><i class="bi bi-person-circle"></i> ক্রেতার EMI ইতিহাস</h2>
+    </div>
+</div>
+
+<!-- Customer Info Card -->
+<div class="card mb-4">
+    <div class="card-header bg-primary text-white">
+        <h5 class="mb-0">ক্রেতার তথ্য</h5>
+    </div>
+    <div class="card-body">
+        <div class="row">
+            <div class="col-md-6">
+                <strong>নাম:</strong> {{ customer.name }}<br>
+                <strong>ফোন:</strong> {{ customer.phone }}<br>
+                {% if customer.address %}
+                <strong>ঠিকানা:</strong> {{ customer.address }}<br>
+                {% endif %}
+                {% if customer.nid_number %}
+                <strong>NID:</strong> {{ customer.nid_number }}<br>
+                {% endif %}
+            </div>
+            <div class="col-md-6">
+                <strong>মোট ক্রয়:</strong> ৳{{ "%.2f"|format(customer.get_total_purchases()) }}<br>
+                <strong>মোট বাকি:</strong> ৳{{ "%.2f"|format(customer.get_total_due()) }}<br>
+                <strong>সক্রিয় EMI:</strong>
+                {% if customer.has_active_emi() %}
+                <span class="badge bg-warning">হ্যাঁ</span>
+                {% else %}
+                <span class="badge bg-success">না</span>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- EMI Sales List -->
+<div class="card">
+    <div class="card-header">
+        <h5 class="mb-0">EMI বিক্রয় তালিকা</h5>
+    </div>
+    <div class="card-body">
+        {% if emi_sales %}
+        <div class="table-responsive">
+            <table class="table table-hover">
+                <thead>
+                    <tr>
+                        <th>বিল নং</th>
+                        <th>পণ্য</th>
+                        <th>তারিখ</th>
+                        <th>মোট মূল্য</th>
+                        <th>পরিশোধিত</th>
+                        <th>বাকি</th>
+                        <th>EMI স্ট্যাটাস</th>
+                        <th>অ্যাকশন</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for sale in emi_sales %}
+                    <tr>
+                        <td>#{{ sale.id }}</td>
+                        <td>{{ sale.product.name }} - {{ sale.product.model }}</td>
+                        <td>{{ sale.sale_date.strftime('%d-%m-%Y') }}</td>
+                        <td>৳{{ sale.total_amount }}</td>
+                        <td>৳{{ sale.paid_amount }}</td>
+                        <td>৳{{ sale.calculate_due_amount() }}</td>
+                        <td>
+                            {% if sale.emi_ledger %}
+                            {% if sale.emi_ledger.status == 'Active' %}
+                            <span class="badge bg-primary">সক্রিয়</span>
+                            <br><small>{{ sale.emi_ledger.installments_paid }}/{{ sale.emi_ledger.total_installments }}
+                                কিস্তি</small>
+                            {% elif sale.emi_ledger.status == 'Completed' %}
+                            <span class="badge bg-success">সম্পন্ন</span>
+                            {% elif sale.emi_ledger.status == 'Defaulted' %}
+                            <span class="badge bg-danger">ডিফল্টেড</span>
+                            {% endif %}
+                            {% endif %}
+                        </td>
+                        <td>
+                            <a href="{{ url_for('pos.invoice', sale_id=sale.id) }}" class="btn btn-sm btn-info">
+                                <i class="bi bi-file-text"></i> বিল
+                            </a>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% else %}
+        <div class="text-center py-5">
+            <i class="bi bi-inbox display-1 text-muted"></i>
+            <p class="mt-3">এই ক্রেতার কোনো EMI বিক্রয় নেই</p>
+        </div>
+        {% endif %}
+    </div>
+</div>
+
+<div class="text-center mt-3">
+    <a href="{{ url_for('emi.dashboard') }}" class="btn btn-secondary">
+        <i class="bi bi-arrow-left"></i> ড্যাশবোর্ডে ফিরে যান
+    </a>
+</div>
+{% endblock %}

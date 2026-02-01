@@ -1,0 +1,77 @@
+{% extends "base.html" %}
+
+{% block title %}হোম - Showroom Manager{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-12">
+        <div class="jumbotron bg-light p-5 rounded">
+            <h1 class="display-4">স্বাগতম Showroom Manager এ! 🏪</h1>
+            <p class="lead">আপনার শোরুম ব্যবসা পরিচালনার জন্য সম্পূর্ণ সমাধান</p>
+            <hr class="my-4">
+            <p>ইনভেন্টরি ম্যানেজমেন্ট, বিক্রয় ট্র্যাকিং এবং EMI কালেকশন - সবকিছু এক জায়গায়</p>
+        </div>
+    </div>
+</div>
+
+<div class="row mt-4">
+    <!-- Inventory Card -->
+    <div class="col-md-4 mb-3">
+        <div class="card h-100 shadow-sm">
+            <div class="card-body text-center">
+                <i class="bi bi-box-seam display-1 text-primary"></i>
+                <h5 class="card-title mt-3">ইনভেন্টরি ম্যানেজমেন্ট</h5>
+                <p class="card-text">পণ্যের স্টক যোগ, আপডেট এবং ট্র্যাক করুন</p>
+                <a href="{{ url_for('inventory.index') }}" class="btn btn-primary">
+                    <i class="bi bi-arrow-right-circle"></i> যান
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- POS Card -->
+    <div class="col-md-4 mb-3">
+        <div class="card h-100 shadow-sm">
+            <div class="card-body text-center">
+                <i class="bi bi-cart-check display-1 text-success"></i>
+                <h5 class="card-title mt-3">বিক্রয় (POS)</h5>
+                <p class="card-text">নগদ এবং EMI বিক্রয় প্রক্রিয়া করুন</p>
+                <a href="{{ url_for('pos.index') }}" class="btn btn-success">
+                    <i class="bi bi-arrow-right-circle"></i> যান
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- EMI Dashboard Card -->
+    <div class="col-md-4 mb-3">
+        <div class="card h-100 shadow-sm">
+            <div class="card-body text-center">
+                <i class="bi bi-calendar-check display-1 text-warning"></i>
+                <h5 class="card-title mt-3">EMI ড্যাশবোর্ড</h5>
+                <p class="card-text">কিস্তি কালেকশন এবং ট্র্যাকিং</p>
+                <a href="{{ url_for('emi.dashboard') }}" class="btn btn-warning">
+                    <i class="bi bi-arrow-right-circle"></i> যান
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row mt-4">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header bg-info text-white">
+                <h5 class="mb-0"><i class="bi bi-info-circle"></i> দ্রুত শুরু করুন</h5>
+            </div>
+            <div class="card-body">
+                <ol>
+                    <li><strong>ইনভেন্টরি:</strong> প্রথমে আপনার পণ্য যোগ করুন এবং স্টক সেট করুন</li>
+                    <li><strong>বিক্রয়:</strong> নগদ বা EMI তে পণ্য বিক্রয় করুন</li>
+                    <li><strong>EMI ট্র্যাকিং:</strong> কিস্তি কালেক্ট করুন এবং পেমেন্ট ট্র্যাক করুন</li>
+                </ol>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

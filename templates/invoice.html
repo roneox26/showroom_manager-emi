@@ -1,0 +1,158 @@
+{% extends "base.html" %}
+
+{% block title %}বিল - {{ sale.id }}{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-md-8 mx-auto">
+        <div class="card" id="invoice">
+            <div class="card-header bg-primary text-white text-center">
+                <h3>বিক্রয় বিল</h3>
+                <p class="mb-0">Showroom Manager</p>
+            </div>
+            <div class="card-body">
+                <!-- Invoice Header -->
+                <div class="row mb-4">
+                    <div class="col-6">
+                        <strong>বিল নম্বর:</strong> #{{ sale.id }}<br>
+                        <strong>তারিখ:</strong> {{ sale.sale_date.strftime('%d-%m-%Y %H:%M') }}
+                    </div>
+                    <div class="col-6 text-end">
+                        <strong>বিক্রয়ের ধরন:</strong>
+                        {% if sale.sale_type == 'Cash' %}
+                        <span class="badge bg-success">নগদ</span>
+                        {% else %}
+                        <span class="badge bg-warning">EMI</span>
+                        {% endif %}
+                    </div>
+                </div>
+
+                <!-- Customer Details -->
+                <div class="card mb-3">
+                    <div class="card-header">
+                        <strong>ক্রেতার তথ্য</strong>
+                    </div>
+                    <div class="card-body">
+                        <strong>নাম:</strong> {{ sale.customer.name }}<br>
+                        <strong>ফোন:</strong> {{ sale.customer.phone }}<br>
+                        {% if sale.customer.address %}
+                        <strong>ঠিকানা:</strong> {{ sale.customer.address }}<br>
+                        {% endif %}
+                        {% if sale.customer.nid_number %}
+                        <strong>NID:</strong> {{ sale.customer.nid_number }}<br>
+                        {% endif %}
+                    </div>
+                </div>
+
+                <!-- Product Details -->
+                <div class="table-responsive mb-3">
+                    <table class="table table-bordered">
+                        <thead class="table-light">
+                            <tr>
+                                <th>পণ্য</th>
+                                <th>মডেল</th>
+                                <th>পরিমাণ</th>
+                                <th>মূল্য</th>
+                                <th>মোট</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>{{ sale.product.name }}</td>
+                                <td>{{ sale.product.model }}</td>
+                                <td>1</td>
+                                <td>৳{{ sale.product.selling_price }}</td>
+                                <td>৳{{ sale.total_amount }}</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- Payment Details -->
+                <div class="row">
+                    <div class="col-md-6 offset-md-6">
+                        <table class="table">
+                            <tr>
+                                <th>মোট মূল্য:</th>
+                                <td class="text-end">৳{{ sale.total_amount }}</td>
+                            </tr>
+                            <tr>
+                                <th>পরিশোধিত:</th>
+                                <td class="text-end">৳{{ sale.paid_amount }}</td>
+                            </tr>
+                            {% if sale.sale_type == 'EMI' %}
+                            <tr class="table-warning">
+                                <th>বাকি:</th>
+                                <td class="text-end">৳{{ sale.calculate_due_amount() }}</td>
+                            </tr>
+                            {% endif %}
+                        </table>
+                    </div>
+                </div>
+
+                <!-- EMI Details -->
+                {% if sale.sale_type == 'EMI' and sale.emi_ledger %}
+                <div class="card bg-light">
+                    <div class="card-header">
+                        <strong>EMI বিবরণ</strong>
+                    </div>
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-md-6">
+                                <strong>মোট কিস্তি:</strong> {{ sale.emi_ledger.total_installments }} মাস<br>
+                                <strong>মাসিক কিস্তি:</strong> ৳{{ "%.2f"|format(sale.emi_ledger.monthly_amount) }}<br>
+                                {% if sale.emi_ledger.interest_rate > 0 %}
+                                <strong>সুদের হার:</strong> {{ sale.emi_ledger.interest_rate }}% (বার্ষিক)<br>
+                                {% endif %}
+                            </div>
+                            <div class="col-md-6">
+                                <strong>পরবর্তী পেমেন্ট:</strong> {{
+                                sale.emi_ledger.next_payment_date.strftime('%d-%m-%Y') }}<br>
+                                <strong>স্ট্যাটাস:</strong>
+                                <span class="badge bg-primary">{{ sale.emi_ledger.status }}</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                {% endif %}
+
+                <!-- Footer -->
+                <div class="text-center mt-4">
+                    <p class="text-muted">ক্রয়ের জন্য ধন্যবাদ!</p>
+                    <hr>
+                    <small class="text-muted">এই বিলটি কম্পিউটার দ্বারা তৈরি এবং স্বাক্ষরের প্রয়োজন নেই</small>
+                </div>
+            </div>
+        </div>
+
+        <!-- Action Buttons -->
+        <div class="text-center mt-3 no-print">
+            <button onclick="window.print()" class="btn btn-primary">
+                <i class="bi bi-printer"></i> প্রিন্ট করুন
+            </button>
+            <a href="{{ url_for('pos.index') }}" class="btn btn-secondary">
+                <i class="bi bi-arrow-left"></i> ফিরে যান
+            </a>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_css %}
+<style>
+    @media print {
+        .no-print {
+            display: none !important;
+        }
+
+        nav,
+        footer {
+            display: none !important;
+        }
+
+        .container {
+            max-width: 100% !important;
+        }
+    }
+</style>
+{% endblock %}

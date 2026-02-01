@@ -1,0 +1,129 @@
+{% extends "base.html" %}
+
+{% block title %}EMI রসিদ - {{ emi_ledger.id }}{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-md-8 mx-auto">
+        <div class="card" id="receipt">
+            <div class="card-header bg-success text-white text-center">
+                <h3>EMI পেমেন্ট রসিদ</h3>
+                <p class="mb-0">Showroom Manager</p>
+            </div>
+            <div class="card-body">
+                <!-- Receipt Header -->
+                <div class="row mb-4">
+                    <div class="col-6">
+                        <strong>রসিদ নম্বর:</strong> #EMI-{{ emi_ledger.id }}<br>
+                        <strong>তারিখ:</strong> {{ emi_ledger.updated_at.strftime('%d-%m-%Y %H:%M') }}
+                    </div>
+                    <div class="col-6 text-end">
+                        <strong>বিল নম্বর:</strong> #{{ emi_ledger.sale_id }}
+                    </div>
+                </div>
+
+                <!-- Customer Details -->
+                <div class="card mb-3">
+                    <div class="card-header">
+                        <strong>ক্রেতার তথ্য</strong>
+                    </div>
+                    <div class="card-body">
+                        <strong>নাম:</strong> {{ emi_ledger.sale.customer.name }}<br>
+                        <strong>ফোন:</strong> {{ emi_ledger.sale.customer.phone }}<br>
+                        {% if emi_ledger.sale.customer.address %}
+                        <strong>ঠিকানা:</strong> {{ emi_ledger.sale.customer.address }}<br>
+                        {% endif %}
+                    </div>
+                </div>
+
+                <!-- Product Details -->
+                <div class="card mb-3">
+                    <div class="card-header">
+                        <strong>পণ্যের তথ্য</strong>
+                    </div>
+                    <div class="card-body">
+                        <strong>পণ্য:</strong> {{ emi_ledger.sale.product.name }}<br>
+                        <strong>মডেল:</strong> {{ emi_ledger.sale.product.model }}<br>
+                        <strong>মোট মূল্য:</strong> ৳{{ emi_ledger.sale.total_amount }}
+                    </div>
+                </div>
+
+                <!-- Payment Details -->
+                <div class="card bg-light mb-3">
+                    <div class="card-header">
+                        <strong>পেমেন্ট বিবরণ</strong>
+                    </div>
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-md-6">
+                                <strong>মাসিক কিস্তি:</strong> ৳{{ emi_ledger.monthly_amount }}<br>
+                                <strong>পরিশোধিত কিস্তি:</strong> {{ emi_ledger.installments_paid }}/{{
+                                emi_ledger.total_installments }}<br>
+                            </div>
+                            <div class="col-md-6">
+                                <strong>অবশিষ্ট কিস্তি:</strong> {{ emi_ledger.total_installments -
+                                emi_ledger.installments_paid }}<br>
+                                <strong>অবশিষ্ট পরিমাণ:</strong> ৳{{
+                                "%.2f"|format(emi_ledger.calculate_remaining_amount()) }}<br>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Current Payment -->
+                <div class="alert alert-success text-center">
+                    <h4>আজকের পেমেন্ট: ৳{{ emi_ledger.monthly_amount }}</h4>
+                </div>
+
+                <!-- Next Payment -->
+                {% if emi_ledger.status == 'Active' %}
+                <div class="alert alert-info text-center">
+                    <strong>পরবর্তী পেমেন্ট তারিখ:</strong> {{ emi_ledger.next_payment_date.strftime('%d-%m-%Y') }}
+                </div>
+                {% elif emi_ledger.status == 'Completed' %}
+                <div class="alert alert-success text-center">
+                    <i class="bi bi-check-circle-fill"></i>
+                    <strong>সমস্ত কিস্তি সম্পন্ন হয়েছে! 🎉</strong>
+                </div>
+                {% endif %}
+
+                <!-- Footer -->
+                <div class="text-center mt-4">
+                    <p class="text-muted">পেমেন্টের জন্য ধন্যবাদ!</p>
+                    <hr>
+                    <small class="text-muted">এই রসিদটি কম্পিউটার দ্বারা তৈরি এবং স্বাক্ষরের প্রয়োজন নেই</small>
+                </div>
+            </div>
+        </div>
+
+        <!-- Action Buttons -->
+        <div class="text-center mt-3 no-print">
+            <button onclick="window.print()" class="btn btn-success">
+                <i class="bi bi-printer"></i> প্রিন্ট করুন
+            </button>
+            <a href="{{ url_for('emi.dashboard') }}" class="btn btn-secondary">
+                <i class="bi bi-arrow-left"></i> ড্যাশবোর্ডে ফিরে যান
+            </a>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_css %}
+<style>
+    @media print {
+        .no-print {
+            display: none !important;
+        }
+
+        nav,
+        footer {
+            display: none !important;
+        }
+
+        .container {
+            max-width: 100% !important;
+        }
+    }
+</style>
+{% endblock %}
