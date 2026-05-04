@@ -52,47 +52,45 @@ def index():
                          status_filter=status_filter, search=search)
 
 
-@debt_bp.route('/add', methods=['GET', 'POST'])
+@debt_bp.route('/add', methods=['POST'])
 def add():
     """Add new debt record"""
-    if request.method == 'POST':
-        try:
-            # Handle file upload
-            photo_filename = None
-            if 'photo' in request.files:
-                file = request.files['photo']
-                if file and file.filename and allowed_file(file.filename):
-                    filename = secure_filename(file.filename)
-                    # Add timestamp to filename to make it unique
-                    timestamp = datetime.now().strftime('%Y%m%d_%H%M%S')
-                    photo_filename = f"{timestamp}_{filename}"
-                    
-                    # Create upload directory if it doesn't exist
-                    os.makedirs(UPLOAD_FOLDER, exist_ok=True)
-                    file.save(os.path.join(UPLOAD_FOLDER, photo_filename))
-            
-            # Create new record
-            record = DebtRecord(
-                name=request.form['name'],
-                phone=request.form['phone'],
-                address=request.form.get('address', ''),
-                amount=float(request.form['amount']),
-                due_date=datetime.strptime(request.form['due_date'], '%Y-%m-%d').date(),
-                photo=photo_filename,
-                notes=request.form.get('notes', '')
-            )
-            
-            db.session.add(record)
-            db.session.commit()
-            
-            flash(f'লেনদেন রেকর্ড যোগ করা হয়েছে: {record.name}', 'success')
-            return redirect(url_for('debt.index'))
-            
-        except Exception as e:
-            db.session.rollback()
-            flash(f'Error: {str(e)}', 'error')
-    
-    return render_template('debt/add.html')
+    try:
+        # Handle file upload
+        photo_filename = None
+        if 'photo' in request.files:
+            file = request.files['photo']
+            if file and file.filename and allowed_file(file.filename):
+                filename = secure_filename(file.filename)
+                # Add timestamp to filename to make it unique
+                timestamp = datetime.now().strftime('%Y%m%d_%H%M%S')
+                photo_filename = f"{timestamp}_{filename}"
+                
+                # Create upload directory if it doesn't exist
+                os.makedirs(UPLOAD_FOLDER, exist_ok=True)
+                file.save(os.path.join(UPLOAD_FOLDER, photo_filename))
+        
+        # Create new record
+        record = DebtRecord(
+            name=request.form['name'],
+            phone=request.form['phone'],
+            address=request.form.get('address', ''),
+            amount=float(request.form['amount']),
+            due_date=datetime.strptime(request.form['due_date'], '%Y-%m-%d').date(),
+            photo=photo_filename,
+            notes=request.form.get('notes', '')
+        )
+        
+        db.session.add(record)
+        db.session.commit()
+        
+        flash(f'লেনদেন রেকর্ড যোগ করা হয়েছে: {record.name}', 'success')
+        return redirect(url_for('debt.index'))
+        
+    except Exception as e:
+        db.session.rollback()
+        flash(f'Error: {str(e)}', 'error')
+        return redirect(url_for('debt.index'))
 
 
 @debt_bp.route('/edit/<int:id>', methods=['GET', 'POST'])
