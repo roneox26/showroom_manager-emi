@@ -30,10 +30,12 @@ def create_app(config_name='default'):
     from routes.inventory import inventory_bp
     from routes.pos import pos_bp
     from routes.emi_manager import emi_bp
+    from routes.debt import debt_bp
     
     app.register_blueprint(inventory_bp)
     app.register_blueprint(pos_bp)
     app.register_blueprint(emi_bp)
+    app.register_blueprint(debt_bp)
     
     # Create database tables
     with app.app_context():
@@ -76,6 +78,7 @@ if __name__ == '__main__':
     print("  - Inventory: http://127.0.0.1:5000/inventory/")
     print("  - POS/Sales: http://127.0.0.1:5000/pos/")
     print("  - EMI Dashboard: http://127.0.0.1:5000/emi/dashboard")
+    print("  - Debt Manager: http://127.0.0.1:5000/debt/")
     print("=" * 50)
     
     app.run(debug=True, host='0.0.0.0', port=5000)

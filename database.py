@@ -16,6 +16,7 @@ def init_db(app):
     with app.app_context():
         # Import all models to ensure they're registered
         from models import product, customer, sales
+        from models.debt import DebtRecord
         
         # Create all tables
         db.create_all()

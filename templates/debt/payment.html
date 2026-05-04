@@ -1,0 +1,42 @@
+{% extends "base.html" %}
+
+{% block title %}পেমেন্ট রেকর্ড করুন{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="row">
+        <div class="col-md-6 offset-md-3">
+            <div class="card">
+                <div class="card-header bg-success text-white">
+                    <h4>পেমেন্ট রেকর্ড করুন</h4>
+                </div>
+                <div class="card-body">
+                    <div class="mb-3">
+                        <h5>{{ record.name }}</h5>
+                        <p class="mb-1"><strong>ফোন:</strong> {{ record.phone }}</p>
+                        <p class="mb-1"><strong>মোট টাকা:</strong> ৳{{ "%.2f"|format(record.amount) }}</p>
+                        <p class="mb-1"><strong>পরিশোধিত:</strong> ৳{{ "%.2f"|format(record.paid_amount) }}</p>
+                        <p class="mb-1"><strong>বাকি:</strong> <span class="text-danger">৳{{ "%.2f"|format(record.remaining_amount) }}</span></p>
+                    </div>
+
+                    <hr>
+
+                    <form method="POST">
+                        <div class="form-group">
+                            <label for="payment_amount">পেমেন্ট পরিমাণ *</label>
+                            <input type="number" step="0.01" class="form-control" id="payment_amount" 
+                                   name="payment_amount" max="{{ record.remaining_amount }}" required>
+                            <small class="form-text text-muted">সর্বোচ্চ: ৳{{ "%.2f"|format(record.remaining_amount) }}</small>
+                        </div>
+
+                        <div class="form-group">
+                            <button type="submit" class="btn btn-success btn-block">পেমেন্ট রেকর্ড করুন</button>
+                            <a href="{{ url_for('debt.index') }}" class="btn btn-secondary btn-block">বাতিল</a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

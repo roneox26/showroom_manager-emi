@@ -1,0 +1,106 @@
+{% extends "base.html" %}
+
+{% block title %}রেকর্ড বিস্তারিত{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="row">
+        <div class="col-md-8 offset-md-2">
+            <div class="card">
+                <div class="card-header">
+                    <h4>রেকর্ড বিস্তারিত</h4>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-4 text-center">
+                            {% if record.photo %}
+                                <img src="{{ url_for('static', filename='uploads/debt_photos/' + record.photo) }}" 
+                                     alt="{{ record.name }}" 
+                                     class="img-fluid rounded" 
+                                     style="max-width: 100%; max-height: 300px;">
+                            {% else %}
+                                <div style="width: 200px; height: 200px; background: #ddd; border-radius: 10px; display: flex; align-items: center; justify-content: center; margin: 0 auto;">
+                                    <i class="fas fa-user fa-5x text-secondary"></i>
+                                </div>
+                            {% endif %}
+                        </div>
+                        <div class="col-md-8">
+                            <table class="table table-bordered">
+                                <tr>
+                                    <th width="40%">নাম</th>
+                                    <td>{{ record.name }}</td>
+                                </tr>
+                                <tr>
+                                    <th>ফোন নম্বর</th>
+                                    <td>{{ record.phone }}</td>
+                                </tr>
+                                <tr>
+                                    <th>ঠিকানা</th>
+                                    <td>{{ record.address or 'N/A' }}</td>
+                                </tr>
+                                <tr>
+                                    <th>মোট টাকা</th>
+                                    <td class="font-weight-bold">৳{{ "%.2f"|format(record.amount) }}</td>
+                                </tr>
+                                <tr>
+                                    <th>পরিশোধিত</th>
+                                    <td class="text-success">৳{{ "%.2f"|format(record.paid_amount) }}</td>
+                                </tr>
+                                <tr>
+                                    <th>বাকি</th>
+                                    <td class="text-danger font-weight-bold">৳{{ "%.2f"|format(record.remaining_amount) }}</td>
+                                </tr>
+                                <tr>
+                                    <th>তারিখ</th>
+                                    <td>
+                                        {{ record.due_date.strftime('%d-%m-%Y') }}
+                                        {% if record.is_overdue %}
+                                            <span class="badge badge-danger ml-2">মেয়াদ শেষ</span>
+                                        {% endif %}
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <th>স্ট্যাটাস</th>
+                                    <td>
+                                        {% if record.status == 'paid' %}
+                                            <span class="badge badge-success">পরিশোধিত</span>
+                                        {% elif record.status == 'partial' %}
+                                            <span class="badge badge-warning">আংশিক পরিশোধ</span>
+                                        {% else %}
+                                            <span class="badge badge-secondary">বাকি</span>
+                                        {% endif %}
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <th>নোট</th>
+                                    <td>{{ record.notes or 'N/A' }}</td>
+                                </tr>
+                                <tr>
+                                    <th>তৈরি হয়েছে</th>
+                                    <td>{{ record.created_at.strftime('%d-%m-%Y %H:%M') }}</td>
+                                </tr>
+                            </table>
+                        </div>
+                    </div>
+
+                    <hr>
+
+                    <div class="text-center">
+                        {% if record.status != 'paid' %}
+                        <a href="{{ url_for('debt.payment', id=record.id) }}" class="btn btn-success">
+                            <i class="fas fa-money-bill"></i> পেমেন্ট করুন
+                        </a>
+                        {% endif %}
+                        <a href="{{ url_for('debt.edit', id=record.id) }}" class="btn btn-warning">
+                            <i class="fas fa-edit"></i> এডিট করুন
+                        </a>
+                        <a href="{{ url_for('debt.index') }}" class="btn btn-secondary">
+                            <i class="fas fa-arrow-left"></i> ফিরে যান
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

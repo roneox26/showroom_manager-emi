@@ -16,7 +16,7 @@
 
 <div class="row mt-4">
     <!-- Inventory Card -->
-    <div class="col-md-4 mb-3">
+    <div class="col-md-3 mb-3">
         <div class="card h-100 shadow-sm">
             <div class="card-body text-center">
                 <i class="bi bi-box-seam display-1 text-primary"></i>
@@ -30,7 +30,7 @@
     </div>
 
     <!-- POS Card -->
-    <div class="col-md-4 mb-3">
+    <div class="col-md-3 mb-3">
         <div class="card h-100 shadow-sm">
             <div class="card-body text-center">
                 <i class="bi bi-cart-check display-1 text-success"></i>
@@ -44,13 +44,27 @@
     </div>
 
     <!-- EMI Dashboard Card -->
-    <div class="col-md-4 mb-3">
+    <div class="col-md-3 mb-3">
         <div class="card h-100 shadow-sm">
             <div class="card-body text-center">
                 <i class="bi bi-calendar-check display-1 text-warning"></i>
                 <h5 class="card-title mt-3">EMI ড্যাশবোর্ড</h5>
                 <p class="card-text">কিস্তি কালেকশন এবং ট্র্যাকিং</p>
                 <a href="{{ url_for('emi.dashboard') }}" class="btn btn-warning">
+                    <i class="bi bi-arrow-right-circle"></i> যান
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Debt Manager Card -->
+    <div class="col-md-3 mb-3">
+        <div class="card h-100 shadow-sm">
+            <div class="card-body text-center">
+                <i class="bi bi-cash-coin display-1 text-danger"></i>
+                <h5 class="card-title mt-3">লেনদেন ম্যানেজার</h5>
+                <p class="card-text">টাকা লেনদেন ট্র্যাক করুন</p>
+                <a href="{{ url_for('debt.index') }}" class="btn btn-danger">
                     <i class="bi bi-arrow-right-circle"></i> যান
                 </a>
             </div>
