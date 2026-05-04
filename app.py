@@ -2,6 +2,10 @@ from flask import Flask, render_template, redirect, url_for
 from config import config
 from database import db, init_db
 import os
+from dotenv import load_dotenv
+
+# Load environment variables from .env file
+load_dotenv()
 
 
 def create_app(config_name='default'):

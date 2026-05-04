@@ -9,7 +9,7 @@ class Config:
     
     # Database configuration
     # Default to SQLite for easy setup, can be changed to PostgreSQL
-    SQLALCHEMY_DATABASE_URI = os.environ.get('DATABASE_URL') or \
+    SQLALCHEMY_DATABASE_URI = os.environ.get('DB_URL') or os.environ.get('DATABASE_URL') or \
         'sqlite:///showroom_manager.db'
     
     # PostgreSQL example (uncomment and configure when ready):
