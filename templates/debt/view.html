@@ -3,100 +3,108 @@
 {% block title %}রেকর্ড বিস্তারিত{% endblock %}
 
 {% block content %}
-<div class="container mt-4">
-    <div class="row">
-        <div class="col-md-8 offset-md-2">
-            <div class="card">
-                <div class="card-header">
-                    <h4>রেকর্ড বিস্তারিত</h4>
+<div class="container mt-4 debt-page">
+    <div class="row justify-content-center">
+        <div class="col-xl-10">
+            <div class="card debt-panel debt-fade-in">
+                <div class="card-header py-3 d-flex align-items-center justify-content-between flex-wrap gap-2">
+                    <h4 class="mb-0"><i class="bi bi-person-badge me-2"></i>রেকর্ড বিস্তারিত</h4>
+                    {% if record.status == 'paid' %}
+                        <span class="badge badge-soft-success px-3 py-2">পরিশোধিত</span>
+                    {% elif record.status == 'partial' %}
+                        <span class="badge badge-soft-warning px-3 py-2">আংশিক পরিশোধ</span>
+                    {% else %}
+                        <span class="badge badge-soft-secondary px-3 py-2">বাকি</span>
+                    {% endif %}
                 </div>
-                <div class="card-body">
-                    <div class="row">
+                <div class="card-body p-4">
+                    <div class="row g-4 align-items-start">
                         <div class="col-md-4 text-center">
                             {% if record.photo %}
-                                <img src="{{ url_for('static', filename='uploads/debt_photos/' + record.photo) }}" 
-                                     alt="{{ record.name }}" 
-                                     class="img-fluid rounded" 
-                                     style="max-width: 100%; max-height: 300px;">
+                                <img src="{{ url_for('static', filename='uploads/debt_photos/' + record.photo) }}" alt="{{ record.name }}" class="img-fluid rounded-4 shadow-sm" style="max-width: 100%; max-height: 320px; object-fit: cover;">
                             {% else %}
-                                <div style="width: 200px; height: 200px; background: #ddd; border-radius: 10px; display: flex; align-items: center; justify-content: center; margin: 0 auto;">
-                                    <i class="fas fa-user fa-5x text-secondary"></i>
+                                <div class="debt-avatar" style="width: 13rem; height: 13rem; margin: 0 auto; font-size: 4rem;">
+                                    <i class="bi bi-person-fill"></i>
                                 </div>
                             {% endif %}
                         </div>
                         <div class="col-md-8">
-                            <table class="table table-bordered">
-                                <tr>
-                                    <th width="40%">নাম</th>
-                                    <td>{{ record.name }}</td>
-                                </tr>
-                                <tr>
-                                    <th>ফোন নম্বর</th>
-                                    <td>{{ record.phone }}</td>
-                                </tr>
-                                <tr>
-                                    <th>ঠিকানা</th>
-                                    <td>{{ record.address or 'N/A' }}</td>
-                                </tr>
-                                <tr>
-                                    <th>মোট টাকা</th>
-                                    <td class="font-weight-bold">৳{{ "%.2f"|format(record.amount) }}</td>
-                                </tr>
-                                <tr>
-                                    <th>পরিশোধিত</th>
-                                    <td class="text-success">৳{{ "%.2f"|format(record.paid_amount) }}</td>
-                                </tr>
-                                <tr>
-                                    <th>বাকি</th>
-                                    <td class="text-danger font-weight-bold">৳{{ "%.2f"|format(record.remaining_amount) }}</td>
-                                </tr>
-                                <tr>
-                                    <th>তারিখ</th>
-                                    <td>
-                                        {{ record.due_date.strftime('%d-%m-%Y') }}
-                                        {% if record.is_overdue %}
-                                            <span class="badge badge-danger ml-2">মেয়াদ শেষ</span>
-                                        {% endif %}
-                                    </td>
-                                </tr>
-                                <tr>
-                                    <th>স্ট্যাটাস</th>
-                                    <td>
-                                        {% if record.status == 'paid' %}
-                                            <span class="badge badge-success">পরিশোধিত</span>
-                                        {% elif record.status == 'partial' %}
-                                            <span class="badge badge-warning">আংশিক পরিশোধ</span>
-                                        {% else %}
-                                            <span class="badge badge-secondary">বাকি</span>
-                                        {% endif %}
-                                    </td>
-                                </tr>
-                                <tr>
-                                    <th>নোট</th>
-                                    <td>{{ record.notes or 'N/A' }}</td>
-                                </tr>
-                                <tr>
-                                    <th>তৈরি হয়েছে</th>
-                                    <td>{{ record.created_at.strftime('%d-%m-%Y %H:%M') }}</td>
-                                </tr>
-                            </table>
+                            <div class="row g-3">
+                                <div class="col-sm-6">
+                                    <div class="p-3 rounded-4 bg-light h-100">
+                                        <div class="text-muted small mb-1">নাম</div>
+                                        <div class="fw-semibold">{{ record.name }}</div>
+                                    </div>
+                                </div>
+                                <div class="col-sm-6">
+                                    <div class="p-3 rounded-4 bg-light h-100">
+                                        <div class="text-muted small mb-1">ফোন নম্বর</div>
+                                        <div class="fw-semibold">{{ record.phone }}</div>
+                                    </div>
+                                </div>
+                                <div class="col-12">
+                                    <div class="p-3 rounded-4 bg-light h-100">
+                                        <div class="text-muted small mb-1">ঠিকানা</div>
+                                        <div class="fw-semibold">{{ record.address or 'N/A' }}</div>
+                                    </div>
+                                </div>
+                                <div class="col-sm-4">
+                                    <div class="p-3 rounded-4 bg-primary-subtle h-100">
+                                        <div class="text-muted small mb-1">মোট টাকা</div>
+                                        <div class="fw-bold text-primary">৳{{ "%.2f"|format(record.amount) }}</div>
+                                    </div>
+                                </div>
+                                <div class="col-sm-4">
+                                    <div class="p-3 rounded-4 bg-success-subtle h-100">
+                                        <div class="text-muted small mb-1">পরিশোধিত</div>
+                                        <div class="fw-bold text-success">৳{{ "%.2f"|format(record.paid_amount) }}</div>
+                                    </div>
+                                </div>
+                                <div class="col-sm-4">
+                                    <div class="p-3 rounded-4 bg-danger-subtle h-100">
+                                        <div class="text-muted small mb-1">বাকি</div>
+                                        <div class="fw-bold text-danger">৳{{ "%.2f"|format(record.remaining_amount) }}</div>
+                                    </div>
+                                </div>
+                                <div class="col-sm-6">
+                                    <div class="p-3 rounded-4 bg-light h-100">
+                                        <div class="text-muted small mb-1">তারিখ</div>
+                                        <div class="fw-semibold">
+                                            {{ record.due_date.strftime('%d-%m-%Y') }}
+                                            {% if record.is_overdue %}
+                                                <span class="badge badge-soft-danger ms-2">মেয়াদ শেষ</span>
+                                            {% endif %}
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-sm-6">
+                                    <div class="p-3 rounded-4 bg-light h-100">
+                                        <div class="text-muted small mb-1">তৈরি হয়েছে</div>
+                                        <div class="fw-semibold">{{ record.created_at.strftime('%d-%m-%Y %H:%M') }}</div>
+                                    </div>
+                                </div>
+                                <div class="col-12">
+                                    <div class="p-3 rounded-4 bg-light h-100">
+                                        <div class="text-muted small mb-1">নোট</div>
+                                        <div class="fw-semibold">{{ record.notes or 'N/A' }}</div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="d-flex flex-wrap gap-2 justify-content-end mt-4">
+                                {% if record.status != 'paid' %}
+                                <a href="{{ url_for('debt.payment', id=record.id) }}" class="btn btn-success btn-lg">
+                                    <i class="bi bi-cash-coin me-1"></i> পেমেন্ট করুন
+                                </a>
+                                {% endif %}
+                                <a href="{{ url_for('debt.edit', id=record.id) }}" class="btn btn-warning btn-lg">
+                                    <i class="bi bi-pencil-square me-1"></i> এডিট করুন
+                                </a>
+                                <a href="{{ url_for('debt.index') }}" class="btn btn-outline-secondary btn-lg">
+                                    <i class="bi bi-arrow-left me-1"></i> ফিরে যান
+                                </a>
+                            </div>
                         </div>
-                    </div>
-
-                    <hr>
-
-                    <div class="text-center">
-                        {% if record.status != 'paid' %}
-                        <a href="{{ url_for('debt.payment', id=record.id) }}" class="btn btn-success">
-                            <i class="fas fa-money-bill"></i> পেমেন্ট করুন
-                        </a>
-                        {% endif %}
-                        <a href="{{ url_for('debt.edit', id=record.id) }}" class="btn btn-warning">
-                            <i class="fas fa-edit"></i> এডিট করুন
-                        </a>
-                        <a href="{{ url_for('debt.index') }}" class="btn btn-secondary">
-                            <i class="fas fa-arrow-left"></i> ফিরে যান
-                        </a>
                     </div>
                 </div>
             </div>

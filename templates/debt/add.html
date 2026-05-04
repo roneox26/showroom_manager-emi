@@ -3,54 +3,61 @@
 {% block title %}নতুন লেনদেন রেকর্ড{% endblock %}
 
 {% block content %}
-<div class="container mt-4">
-    <div class="row">
-        <div class="col-md-8 offset-md-2">
-            <div class="card">
-                <div class="card-header">
-                    <h4>নতুন লেনদেন রেকর্ড যোগ করুন</h4>
+<div class="container mt-4 debt-page">
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <div class="card debt-panel debt-fade-in">
+                <div class="card-header py-3">
+                    <h4 class="mb-0"><i class="bi bi-plus-circle me-2"></i>নতুন লেনদেন রেকর্ড যোগ করুন</h4>
                 </div>
-                <div class="card-body">
-                    <form method="POST" enctype="multipart/form-data">
-                        <div class="form-group">
-                            <label for="name">নাম *</label>
-                            <input type="text" class="form-control" id="name" name="name" required>
+                <div class="card-body p-4">
+                    <form method="POST" enctype="multipart/form-data" class="row g-3">
+                        <div class="col-md-6">
+                            <label for="name" class="form-label">নাম *</label>
+                            <input type="text" class="form-control form-control-lg" id="name" name="name" required>
                         </div>
 
-                        <div class="form-group">
-                            <label for="phone">ফোন নম্বর *</label>
-                            <input type="text" class="form-control" id="phone" name="phone" required>
+                        <div class="col-md-6">
+                            <label for="phone" class="form-label">ফোন নম্বর *</label>
+                            <input type="text" class="form-control form-control-lg" id="phone" name="phone" required>
                         </div>
 
-                        <div class="form-group">
-                            <label for="address">ঠিকানা</label>
+                        <div class="col-12">
+                            <label for="address" class="form-label">ঠিকানা</label>
                             <textarea class="form-control" id="address" name="address" rows="2"></textarea>
                         </div>
 
-                        <div class="form-group">
-                            <label for="amount">টাকার পরিমাণ *</label>
-                            <input type="number" step="0.01" class="form-control" id="amount" name="amount" required>
+                        <div class="col-md-6">
+                            <label for="amount" class="form-label">টাকার পরিমাণ *</label>
+                            <div class="input-group input-group-lg">
+                                <span class="input-group-text">৳</span>
+                                <input type="number" step="0.01" class="form-control" id="amount" name="amount" required>
+                            </div>
                         </div>
 
-                        <div class="form-group">
-                            <label for="due_date">কবে দিবে (তারিখ) *</label>
-                            <input type="date" class="form-control" id="due_date" name="due_date" required>
+                        <div class="col-md-6">
+                            <label for="due_date" class="form-label">কবে দিবে (তারিখ) *</label>
+                            <input type="date" class="form-control form-control-lg" id="due_date" name="due_date" required>
                         </div>
 
-                        <div class="form-group">
-                            <label for="photo">ছবি</label>
-                            <input type="file" class="form-control-file" id="photo" name="photo" accept="image/*">
-                            <small class="form-text text-muted">JPG, PNG, GIF (Max 5MB)</small>
+                        <div class="col-12">
+                            <label for="photo" class="form-label">ছবি</label>
+                            <input type="file" class="form-control" id="photo" name="photo" accept="image/*">
+                            <small class="form-text">JPG, PNG, GIF</small>
                         </div>
 
-                        <div class="form-group">
-                            <label for="notes">নোট</label>
-                            <textarea class="form-control" id="notes" name="notes" rows="3"></textarea>
+                        <div class="col-12">
+                            <label for="notes" class="form-label">নোট</label>
+                            <textarea class="form-control" id="notes" name="notes" rows="4"></textarea>
                         </div>
 
-                        <div class="form-group">
-                            <button type="submit" class="btn btn-primary">সেভ করুন</button>
-                            <a href="{{ url_for('debt.index') }}" class="btn btn-secondary">বাতিল</a>
+                        <div class="col-12 d-flex flex-wrap gap-2 justify-content-end">
+                            <a href="{{ url_for('debt.index') }}" class="btn btn-outline-secondary btn-lg">
+                                <i class="bi bi-x-circle me-1"></i>বাতিল
+                            </a>
+                            <button type="submit" class="btn btn-primary btn-lg">
+                                <i class="bi bi-check2-circle me-1"></i>সেভ করুন
+                            </button>
                         </div>
                     </form>
                 </div>

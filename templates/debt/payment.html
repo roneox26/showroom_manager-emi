@@ -3,35 +3,41 @@
 {% block title %}পেমেন্ট রেকর্ড করুন{% endblock %}
 
 {% block content %}
-<div class="container mt-4">
-    <div class="row">
-        <div class="col-md-6 offset-md-3">
-            <div class="card">
-                <div class="card-header bg-success text-white">
-                    <h4>পেমেন্ট রেকর্ড করুন</h4>
+<div class="container mt-4 debt-page">
+    <div class="row justify-content-center">
+        <div class="col-lg-6">
+            <div class="card debt-panel debt-fade-in">
+                <div class="card-header py-3 bg-success text-white">
+                    <h4 class="mb-0"><i class="bi bi-cash-coin me-2"></i>পেমেন্ট রেকর্ড করুন</h4>
                 </div>
-                <div class="card-body">
-                    <div class="mb-3">
-                        <h5>{{ record.name }}</h5>
-                        <p class="mb-1"><strong>ফোন:</strong> {{ record.phone }}</p>
-                        <p class="mb-1"><strong>মোট টাকা:</strong> ৳{{ "%.2f"|format(record.amount) }}</p>
-                        <p class="mb-1"><strong>পরিশোধিত:</strong> ৳{{ "%.2f"|format(record.paid_amount) }}</p>
-                        <p class="mb-1"><strong>বাকি:</strong> <span class="text-danger">৳{{ "%.2f"|format(record.remaining_amount) }}</span></p>
+                <div class="card-body p-4">
+                    <div class="p-3 rounded-4 bg-light mb-4">
+                        <h5 class="mb-3">{{ record.name }}</h5>
+                        <div class="row g-2 small">
+                            <div class="col-12"><strong>ফোন:</strong> {{ record.phone }}</div>
+                            <div class="col-12"><strong>মোট টাকা:</strong> ৳{{ "%.2f"|format(record.amount) }}</div>
+                            <div class="col-12"><strong>পরিশোধিত:</strong> ৳{{ "%.2f"|format(record.paid_amount) }}</div>
+                            <div class="col-12"><strong>বাকি:</strong> <span class="text-danger">৳{{ "%.2f"|format(record.remaining_amount) }}</span></div>
+                        </div>
                     </div>
 
-                    <hr>
-
-                    <form method="POST">
-                        <div class="form-group">
-                            <label for="payment_amount">পেমেন্ট পরিমাণ *</label>
-                            <input type="number" step="0.01" class="form-control" id="payment_amount" 
-                                   name="payment_amount" max="{{ record.remaining_amount }}" required>
-                            <small class="form-text text-muted">সর্বোচ্চ: ৳{{ "%.2f"|format(record.remaining_amount) }}</small>
+                    <form method="POST" class="row g-3">
+                        <div class="col-12">
+                            <label for="payment_amount" class="form-label">পেমেন্ট পরিমাণ *</label>
+                            <div class="input-group input-group-lg">
+                                <span class="input-group-text">৳</span>
+                                <input type="number" step="0.01" class="form-control" id="payment_amount" name="payment_amount" max="{{ record.remaining_amount }}" required>
+                            </div>
+                            <div class="form-text">সর্বোচ্চ: ৳{{ "%.2f"|format(record.remaining_amount) }}</div>
                         </div>
 
-                        <div class="form-group">
-                            <button type="submit" class="btn btn-success btn-block">পেমেন্ট রেকর্ড করুন</button>
-                            <a href="{{ url_for('debt.index') }}" class="btn btn-secondary btn-block">বাতিল</a>
+                        <div class="col-12 d-flex flex-wrap gap-2 justify-content-end">
+                            <a href="{{ url_for('debt.index') }}" class="btn btn-outline-secondary btn-lg">
+                                <i class="bi bi-x-circle me-1"></i>বাতিল
+                            </a>
+                            <button type="submit" class="btn btn-success btn-lg">
+                                <i class="bi bi-check2-circle me-1"></i>পেমেন্ট রেকর্ড করুন
+                            </button>
                         </div>
                     </form>
                 </div>
